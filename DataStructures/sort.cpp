@@ -15,6 +15,8 @@ using namespace std;
 #define ASCII_z 122
 #define MAX 10000
 
+enum HEAPDS { ARRAY, TREE };
+
 class Sort {
     protected:
         int *arr;
@@ -113,6 +115,25 @@ class MergeSort: public Sort {
         }
 
 };
+
+class QuickSort : public Sort {
+    public:
+        QuickSort(int *a, int len) : Sort(a, len) {
+        }
+        virtual void execute() {
+        }
+};
+class HeapSort: public Sort {
+    public:
+        HeapSort(int *a, int len, HEAPDS ds):Sort(a, len) {
+        }
+        HeapSort(int *a, int len) : Sort(a, len) {
+            dsType = TREE;
+        }
+    private:
+        HEAPDS dsType;
+};
+
 int main() {
     int len, i=0;
     cin>>len;
