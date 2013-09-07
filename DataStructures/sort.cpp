@@ -1,5 +1,7 @@
 #include<string.h>
 #include<iostream>
+#include<cstdlib>
+#include<ctime>
 #include<string>
 #include<math.h>
 #include<map>
@@ -119,8 +121,36 @@ class MergeSort: public Sort {
 class QuickSort : public Sort {
     public:
         QuickSort(int *a, int len) : Sort(a, len) {
+            // init seed to choose pivot randomly.
+            srand(time(0));
         }
         virtual void execute() {
+            quickSortRoutine(0, length - 1);
+        }
+    private:
+        int pivot;
+
+        void quickSortRoutine(int start, int end) {
+            if (start < end) {
+                int pivot = start + rand() % (end - start);
+                swap(&arr[start], &arr[pivot]);
+                int i = start + 1, j = end;
+                while (i <= j) {
+                    if (arr[i] < arr[start]) {
+                        i++;
+                    } else {
+                        swap(&arr[i], &arr[j]);
+                        j--;
+                    }
+                }
+                swap(arr + start, arr + i - 1);
+                quickSortRoutine(start, i - 2);
+                quickSortRoutine(i, end);
+            }
+        }
+        void swap(int* a, int* b) {
+            int c;
+            c = *b;*b = *a;*a = c;
         }
 };
 class HeapSort: public Sort {
@@ -143,7 +173,8 @@ int main() {
         i++;
     }
     //Sort *sort = new InsertionSort(a, len);
-    Sort *sort = new MergeSort(a, len);
+    //Sort *sort = new MergeSort(a, len);
+    Sort *sort = new QuickSort(a, len);
     sort->execute();
     if (DEBUG)
         sort->printArray();
