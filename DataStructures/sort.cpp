@@ -133,24 +133,23 @@ class QuickSort : public Sort {
         void quickSortRoutine(int start, int end) {
             if (start < end) {
                 int pivot = start + rand() % (end - start);
-                swap(&arr[start], &arr[pivot]);
+                swap(arr[start], arr[pivot]);
                 int i = start + 1, j = end;
                 while (i <= j) {
                     if (arr[i] < arr[start]) {
                         i++;
                     } else {
-                        swap(&arr[i], &arr[j]);
+                        swap(arr[i], arr[j]);
                         j--;
                     }
                 }
-                swap(arr + start, arr + i - 1);
+                swap(arr[start], arr[i - 1]);
                 quickSortRoutine(start, i - 2);
                 quickSortRoutine(i, end);
             }
         }
-        void swap(int* a, int* b) {
-            int c;
-            c = *b;*b = *a;*a = c;
+        void swap(int& a, int& b) {
+            int c = b; b = a;a = c;
         }
 };
 class HeapSort: public Sort {
