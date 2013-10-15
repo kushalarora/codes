@@ -3,27 +3,23 @@
 #include<sstream>
 #include<map>
 #include<vector>
+#include "../cpp/assert_w_msg.hpp"
+#include<limits.h>
 using namespace std;
-
+const int MAXINPUT = 10000;
 template<class T, class V> class CLI {
     private:
         map<T, V> mp;
-        V mapInput(T input, V def);
+        V deflt;
+        // returns user provided map value corresponding to input.
+        void mapInput(T input, V* container);
     public:
-        CLI(map<T, V> map) {
-            mp = map;
-        }
+        CLI(int count, pair<T,V> prs[], V def);
         // For single valued input like "How many inputs you want?"
-        V readInput(string message, V default);
+        void readInput(string message, V* container);
         // For reading multiple inputs
-        V* readInputMultiple(string message, int size, V def);
+        void readInputMultiple(string message, int size, V* container);
         // For reading inputs till carrige return
-        V* readInputMultiple(string message, V def);
-
-};
-
-template<class T> class CLI {
-    public:
-        CLI() {};
+        void readInputMultiple(string message, V* container, int c_size);
 
 };
