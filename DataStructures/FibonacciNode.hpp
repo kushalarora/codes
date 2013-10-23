@@ -37,25 +37,4 @@ class FibonacciNode {
         void incDegree() {degree++;}
         void decDegree() {degree--;}
         void setDegree() {this->degree = degree;}
-        void swapNode(FibonacciNode* node) {
-            swap<FibonacciNode>(child, node->getChild());
-            swap<FibonacciNode>(parent, node->getParent());
-
-            int deg = node->getDegree();
-            swap<int>(degree, deg);
-            node->setDegree(deg);
-
-            bool mrk = node->getMark();
-            swap<bool>(mark, mrk);
-            node->setMark(mrk);
-
-            swap<T>(key, this->getKey());
-        }
 };
-template<class T1>
-void swap(T1* a, T1* b) {
-    T1 c = a;
-    *a = *b;
-    *b = *c;
-};
-

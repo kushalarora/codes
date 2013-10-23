@@ -1,7 +1,6 @@
 #include<iostream>
 #include "FibonacciNode.hpp"
 #include<math.h>
-#include "../cpp/utils.hpp"
 using namespace std;
 
 template<class T>
@@ -19,19 +18,21 @@ class FibonacciHeap {
         void meldLists(FibonacciNode<T>* node1, FibonacciNode<T>* node2);
         void removeFromList(FibonacciNode<T>* pList, FibonacciNode<T>* node);
         void heapLink(FibonacciNode<T>* node, FibonacciNode<T>* node2);
+        void printList(FibonacciNode<T>* node);
     public:
         FibonacciHeap() {
             nNodes = 0;
-            min = NULL;
+            Min = NULL;
         }
         int getNodeCount() {return nNodes;}
-        FibonacciNode<T>* getMinNode() {return min;}
+        FibonacciNode<T>* getMinNode() {return Min;}
         void insertNode(FibonacciNode<T>* node);
         void meld(FibonacciHeap* H2);
         FibonacciNode<T>* extractMin();
         void decreaseKey(FibonacciNode<T>* node, T key);
         void deleteNode(FibonacciNode<T>* node);
         void setMin(FibonacciNode<T>* node) {this->Min = node;}
+        void printHeap();
 };
 
 template<class T>
@@ -57,7 +58,7 @@ void FibonacciHeap<T>::meld(FibonacciHeap<T>* H2) {
         meldLists(H1_min, H2_min);
         // set new Minimum
         if (H2_min->getKey() < H1_min->getKey())
-            this->min = H2_min;
+            this->Min = H2_min;
     }
     H2->setMin(NULL);
     delete H2;
@@ -105,23 +106,17 @@ FibonacciNode<T>* FibonacciHeap<T>::extractMin() {
     if (min != NULL) {
         FibonacciNode<T>* pointedChild = min->getChild();
         FibonacciNode<T>* temp = pointedChild;
-        FibonacciNode<T>* temp2;
-        do {
+        FibonacciNode<T>* child_ptr;
+        while (temp = min->getChild()) {
             temp->setParent(NULL);
-            temp2 = temp->getRightSibling();
+	    removeFromList(child_ptr, temp);
+	    min->setChild(child_ptr);
             insertInRootList(temp);
-            temp = temp2;
-        } while(temp != pointedChild);
-
+	}
         // remove min
         removeFromList(Min, min);
-
-        if (min == min->getRightSibling())
-            Min = NULL;
-        else {
-            Min = min->getRightSibling();
+	if (Min != NULL)
             consolidate();
-        }
         nNodes--;
     }
     return min;
@@ -150,9 +145,8 @@ void FibonacciHeap<T>::consolidate() {
     }
 
     // traverse the root list of Heap
-    FibonacciNode<T>* temp = getMinNode();
+    FibonacciNode<T>* temp;
     FibonacciNode<T>* temp2;
-    FibonacciNode<T>* right_sibling;
     while (temp = getMinNode() != NULL) {
         int deg = temp->getDegree();
         removeFromList(Min, temp);
@@ -185,4 +179,28 @@ void FibonacciHeap<T>::heapLink(FibonacciNode<T>* node, FibonacciNode<T>* node2)
     insertInList(node->getChild(), node2);
     node->incDegree();
     node2->setMark(false);
+}
+
+template<class T>
+void FibonacciHeap<T>::printHeap() {
+    printList(Min);
+}
+
+template<class T>
+void FibonacciHeap<T>::printList(FibonacciNode<T>* node) {
+    cout << "\n";
+    FibonacciNode<T>* temp;
+    FibonacciNode<T>* child;
+    FibonacciNode<T>* parent;
+    do {
+        cout << "(" << temp->getKey();
+        parent = temp->getParent();
+        if (parent != NULL)
+            cout << ", " << parent->getKey();
+        cout << ")" << "\t";
+        child = temp->getChild();
+        if (child != NULL)
+            printList(child);
+        temp = temp->getRightSibling();
+    } while(temp != node);
 }
