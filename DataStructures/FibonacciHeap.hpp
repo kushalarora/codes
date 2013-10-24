@@ -1,6 +1,8 @@
 #include<iostream>
 #include "FibonacciNode.hpp"
 #include<math.h>
+#include<map>
+#include<assert.h>
 using namespace std;
 
 template<class T>
@@ -8,6 +10,7 @@ class FibonacciHeap {
     private:
         FibonacciNode<T>* Min;
         int nNodes;
+        map<T,FibonacciNode<T>*> mp;
         void consolidate();
         void cut(FibonacciNode<T>* node1, FibonacciNode<T>* node2);
         void cascadingCut(FibonacciNode<T>* node);
@@ -29,10 +32,16 @@ class FibonacciHeap {
         void insertNode(FibonacciNode<T>* node);
         void meld(FibonacciHeap<T>* H2);
         FibonacciNode<T>* extractMin();
-        void decreaseKey(FibonacciNode<T>* node, T key);
+        void decreaseKey(FibonacciNode<T>* node, T* key);
         void deleteNode(FibonacciNode<T>* node);
         void setMin(FibonacciNode<T>* node) {this->Min = node;}
         void printHeap();
+        FibonacciNode<T>* getNodeByVal(T val) {
+            typename map<T, FibonacciNode<T>*>::iterator itr = mp.find(val);
+            if (itr == mp.end())
+                return NULL;
+            return itr->second;
+        }
         ~FibonacciHeap();
 };
 
@@ -43,6 +52,7 @@ void FibonacciHeap<T>::insertNode(FibonacciNode<T>* node) {
         Min = node;
     }
     nNodes++;
+    mp[node->getKeyVal()] = node;
 }
 template<class T>
 void FibonacciHeap<T>::meld(FibonacciHeap<T>* H2) {
@@ -68,8 +78,7 @@ void FibonacciHeap<T>::meld(FibonacciHeap<T>* H2) {
 template<class T>
 void FibonacciHeap<T>::meldLists(FibonacciNode<T>* node1, FibonacciNode<T>* node2) {
     if (node1 != NULL && node2 != NULL) {
-        // join this's and H2's root lists.
-
+        // join circular doubly linked lists pointed by node1's and node2.
         FibonacciNode<T>* temp = node1->getRightSibling();
         FibonacciNode<T>* temp2 = node2->getRightSibling();
 
@@ -78,7 +87,9 @@ void FibonacciHeap<T>::meldLists(FibonacciNode<T>* node1, FibonacciNode<T>* node
 
         node2->setRightSibling(temp);
         temp->setLeftSibling(node2);
-    } else if (node1 = NULL)
+    } else if (node1 == NULL)
+        // if node2 is not null, then node2's list is now node1's list
+        // else node1 = node2 are null.
         node1 = node2;
 
 }
@@ -225,4 +236,48 @@ FibonacciHeap<T>::~FibonacciHeap() {
     if (Min != NULL)
         return;
     delete Min;
+}
+
+template<class T>
+void FibonacciHeap<T>::decreaseKey(FibonacciNode<T>* node, T* key) {
+    assert(node->getKeyVal() > *key);
+    node->setKey(key);
+    FibonacciNode<T>* parent = node->getParent();
+    if (parent != NULL && (node->getKeyVal() < parent->getKeyVal())) {
+        cut(node, parent);
+        cascadingCut(parent);
+    }
+    if (node->getKeyVal() < getMinNode()->getKeyVal()) {
+        setMin(node);
+    }
+}
+
+
+template<class T>
+void  FibonacciHeap<T>::cut(FibonacciNode<T>* child, FibonacciNode<T>* parent) {
+    // remove from childList
+    FibonacciNode<T>* childList = parent->getChild();
+    removeFromList(&childList, child);
+    parent->setChild(childList);
+    parent->decDegree();
+    child->setParent(NULL);
+
+    // insert into rootlist
+    insertInRootList(child);
+
+    // set mark to be false.
+    child->setMark(false);
+}
+
+template<class T>
+void FibonacciHeap<T>::cascadingCut(FibonacciNode<T>* node) {
+    FibonacciNode<T>* parent = node->getParent();
+    if (parent != NULL) {
+        if (!node->getMark())
+            node->setMark(true);
+        else {
+            cut(node, parent);
+            cascadingCut(parent);
+        }
+    }
 }
