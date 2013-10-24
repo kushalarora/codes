@@ -1,4 +1,4 @@
-#include "FibonacciHeap.cpp"
+#include "FibonacciHeap.hpp"
 #include<assert.h>
 
 
@@ -6,19 +6,19 @@ int main() {
     FibonacciHeap<int> mQ = FibonacciHeap<int>();
     int arr[5] = {10, 20, 30, 40, 50};
     for (int i = 0; i < 5; i++) {
-        mQ.insertNode(new FibonacciNode<int>(arr + i));
+        mQ.insertNode(arr + i);
     }
     cout<<"Printing Heap"<<endl;
     mQ.printHeap();
-    assert(mQ.extractMin()->getKeyVal() == 10);
-    assert(mQ.extractMin()->getKeyVal() == 20);
-    assert(mQ.extractMin()->getKeyVal() == 30);
-    assert(mQ.extractMin()->getKeyVal() == 40);
-    assert(mQ.extractMin()->getKeyVal() == 50);
+    assert(*(mQ.extractMin()) == 10);
+    assert(*mQ.extractMin() == 20);
+    assert(*mQ.extractMin() == 30);
+    assert(*mQ.extractMin() == 40);
+    assert(*mQ.extractMin() == 50);
     cout<<"Printing Heap"<<endl;
     mQ.printHeap();
     for (int i = 0; i < 5; i++) {
-        mQ.insertNode(new FibonacciNode<int>(arr + i));
+        mQ.insertNode(arr + i);
     }
     mQ.printHeap();
     mQ.extractMin();
@@ -27,6 +27,6 @@ int main() {
     FibonacciNode<int>* node = mQ.getNodeByVal(50);
     mQ.decreaseKey(node, new int(5));
     mQ.printHeap();
-    assert(mQ.extractMin()->getKeyVal() == 5);
+    assert(*mQ.extractMin() == 5);
     return 0;
 }

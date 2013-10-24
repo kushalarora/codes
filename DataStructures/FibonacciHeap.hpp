@@ -30,8 +30,10 @@ class FibonacciHeap {
         int getNodeCount() {return nNodes;}
         FibonacciNode<T>* getMinNode() {return Min;}
         void insertNode(FibonacciNode<T>* node);
+        void insertNode(T key);
+        void insertNode(T* keyP);
         void meld(FibonacciHeap<T>* H2);
-        FibonacciNode<T>* extractMin();
+        T* extractMin();
         void decreaseKey(FibonacciNode<T>* node, T* key);
         void deleteNode(FibonacciNode<T>* node);
         void setMin(FibonacciNode<T>* node) {this->Min = node;}
@@ -54,6 +56,16 @@ void FibonacciHeap<T>::insertNode(FibonacciNode<T>* node) {
     nNodes++;
     mp[node->getKeyVal()] = node;
 }
+template<class T>
+void FibonacciHeap<T>::insertNode(T key) {
+    insertNode(new FibonacciNode<T>(&key));
+}
+
+template<class T>
+void FibonacciHeap<T>::insertNode(T* key) {
+    insertNode(new FibonacciNode<T>(key));
+}
+
 template<class T>
 void FibonacciHeap<T>::meld(FibonacciHeap<T>* H2) {
     if (H2 == NULL || H2->getNodeCount() == 0 || H2->getMinNode() == NULL)
@@ -113,7 +125,7 @@ void FibonacciHeap<T>::insertInList(FibonacciNode<T>** pList, FibonacciNode<T>* 
 }
 
 template<class T>
-FibonacciNode<T>* FibonacciHeap<T>::extractMin() {
+T* FibonacciHeap<T>::extractMin() {
     FibonacciNode<T>* min = this->getMinNode();
     if (min != NULL) {
         FibonacciNode<T>* pointedChild = min->getChild();
@@ -133,7 +145,7 @@ FibonacciNode<T>* FibonacciHeap<T>::extractMin() {
         if (Min != NULL)
             consolidate();
     }
-    return min;
+    return min->getKey();
 }
 template<class T>
 void FibonacciHeap<T>::removeFromList(FibonacciNode<T>** pList, FibonacciNode<T>* node) {
