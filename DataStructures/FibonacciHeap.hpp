@@ -35,6 +35,7 @@ class FibonacciHeap {
         void meld(FibonacciHeap<T>* H2);
         T* extractMin();
         void decreaseKey(FibonacciNode<T>* node, T* key);
+        void notifyDecreaseKey(FibonacciNode<T>* node);
         void deleteNode(FibonacciNode<T>* node);
         void setMin(FibonacciNode<T>* node) {this->Min = node;}
         void printHeap();
@@ -254,6 +255,12 @@ template<class T>
 void FibonacciHeap<T>::decreaseKey(FibonacciNode<T>* node, T* key) {
     assert(node->getKeyVal() > *key);
     node->setKey(key);
+    notifyDecreaseKey(node);
+}
+
+
+template<class T>
+void FibonacciHeap<T>::notifyDecreaseKey(FibonacciNode<T>* node) {
     FibonacciNode<T>* parent = node->getParent();
     if (parent != NULL && (node->getKeyVal() < parent->getKeyVal())) {
         cut(node, parent);
@@ -263,6 +270,7 @@ void FibonacciHeap<T>::decreaseKey(FibonacciNode<T>* node, T* key) {
         setMin(node);
     }
 }
+
 
 
 template<class T>
