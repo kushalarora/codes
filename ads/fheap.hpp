@@ -1,0 +1,345 @@
+#include<iostream>
+#include "fnode.hpp"
+#include<math.h>
+#include<map>
+#include<assert.h>
+using namespace std;
+
+//#define DEBUG
+
+template<class T>
+class FibonacciHeap {
+    private:
+        FibonacciNode<T>* Min;  // min pointer
+        int nNodes; // no of nodes in heap
+        map<T*,FibonacciNode<T>*> mp; // map to access node using values
+        void consolidate();     // consolidate post extractMin
+        void cut(FibonacciNode<T>* node1, FibonacciNode<T>* node2); // cut operation in decreaseKey
+        void cascadingCut(FibonacciNode<T>* node);  // casading cut for decreaseKey
+        // insertNode in Doubly Link List, first argument is pointer to the head of link list
+        void insertInList(FibonacciNode<T>** pList, FibonacciNode<T>* node);
+        void insertInRootList(FibonacciNode<T>* node) {     // insert in root doubly linked list
+            insertInList(&Min, node);
+        }
+        void meldLists(FibonacciNode<T>* node1, FibonacciNode<T>* node2);   // join two linked lists.
+        // remove node in Doubly Link List, first argument is pointer to the head of link list
+        void removeFromList(FibonacciNode<T>** pList, FibonacciNode<T>* node);
+        // remove node2 from root list and add as a child of node1
+        void heapLink(FibonacciNode<T>* node, FibonacciNode<T>* node2);
+        // print function for debugging
+        void printList(FibonacciNode<T>* node);
+    public:
+        FibonacciHeap() {
+            nNodes = 0;
+            Min = NULL;
+        }
+        int getNodeCount() {return nNodes;}
+        FibonacciNode<T>* getMinNode() {return Min;}
+        void insertNode(FibonacciNode<T>* node);
+        void insertNode(T* keyP, int priority);
+        void meld(FibonacciHeap<T>* H2);
+        T* extractMin();
+        void decreaseKey(T* keyP, int priority);
+        void notifyDecreaseKey(T* keyP);
+        void deleteNode(FibonacciNode<T>* node);
+        void setMin(FibonacciNode<T>* node) {this->Min = node;}
+        void printHeap();
+        FibonacciNode<T>* getNodeByVal(T* keyP) {
+            typename map<T*, FibonacciNode<T>*>::iterator itr = mp.find(keyP);
+            if (itr == mp.end())
+                return NULL;
+            return itr->second;
+        }
+        ~FibonacciHeap();
+};
+
+template<class T>
+void FibonacciHeap<T>::insertNode(FibonacciNode<T>* node) {
+    insertInRootList(node);
+    if (Min == NULL || Min->getPriority() > node->getPriority()) {
+        Min = node;
+    }
+    nNodes++;
+    mp[node->getKey()] = node;
+}
+
+template<class T>
+void FibonacciHeap<T>::insertNode(T* key, int priority) {
+    insertNode(new FibonacciNode<T>(key, priority));
+}
+
+template<class T>
+void FibonacciHeap<T>::meld(FibonacciHeap<T>* H2) {
+    if (H2 == NULL || H2->getNodeCount() == 0 || H2->getMinNode() == NULL)
+        return;
+
+    FibonacciNode<T>* H2_min = H2->getMinNode();
+    FibonacciNode<T>* H1_min = this->getMinNode();
+
+    if (H1_min == NULL) {
+        // Make H2's root list as H1's root list.
+        this->Min = H2_min;
+    } else {
+        meldLists(H1_min, H2_min);
+        // set new Minimum
+        if (H2_min->getPriority() < H1_min->getPriority())
+            this->Min = H2_min;
+    }
+    this->nNodes += H2->getNodeCount();
+    H2->setMin(NULL);
+}
+
+template<class T>
+void FibonacciHeap<T>::meldLists(FibonacciNode<T>* node1, FibonacciNode<T>* node2) {
+    if (node1 != NULL && node2 != NULL) {
+        // join circular doubly linked lists pointed by node1's and node2.
+        FibonacciNode<T>* temp = node1->getRightSibling();
+        FibonacciNode<T>* temp2 = node2->getRightSibling();
+
+        node1->setRightSibling(temp2);
+        temp2->setLeftSibling(node1);
+
+        node2->setRightSibling(temp);
+        temp->setLeftSibling(node2);
+    } else if (node1 == NULL)
+        // if node2 is not null, then node2's list is now node1's list
+        // else node1 = node2 are null.
+        node1 = node2;
+
+}
+
+template<class T>
+void FibonacciHeap<T>::insertInList(FibonacciNode<T>** pList, FibonacciNode<T>* node) {
+    if(node == NULL)
+        return;
+    FibonacciNode<T>* pNode = *pList;
+    if (pNode == NULL) {
+        node->setLeftSibling(node);
+        node->setRightSibling(node);
+        *pList = node;
+    } else {
+        node->setLeftSibling(pNode->getLeftSibling());
+        pNode->getLeftSibling()->setRightSibling(node);
+
+        node->setRightSibling(pNode);
+        pNode->setLeftSibling(node);
+    }
+}
+
+template<class T>
+T* FibonacciHeap<T>::extractMin() {
+    FibonacciNode<T>* min = this->getMinNode();
+    if (min != NULL) {
+        FibonacciNode<T>* pointedChild = min->getChild();
+        FibonacciNode<T>* temp = pointedChild;
+        FibonacciNode<T>* child_ptr;
+        // add all children of min node to root list.
+        while ((temp = min->getChild()) != NULL) {
+            temp->setParent(NULL);
+            removeFromList(&child_ptr, temp);
+            min->setChild(child_ptr);
+            insertInRootList(temp);
+        }
+        // remove min node from root list
+        removeFromList(&Min, min);
+        nNodes--;
+#ifdef DEBUG
+        cout << "Removed Min"<<endl;
+        printHeap();
+#endif
+        if (Min != NULL)
+            consolidate();
+    }
+    return min->getKey();
+}
+
+template<class T>
+void FibonacciHeap<T>::removeFromList(FibonacciNode<T>** pList, FibonacciNode<T>* node) {
+    if (pList == NULL || node == NULL)
+        return;
+    FibonacciNode<T>* right = node->getRightSibling();
+    FibonacciNode<T>* left = node->getLeftSibling();
+    // if there is only one node, set head element to null on removal
+    if (node == right || node == left) {
+        *pList = NULL;
+    } else {
+        // make right node's left sibling point to right node
+        // and vice versa
+        left->setRightSibling(right);
+        right->setLeftSibling(left);
+        *pList = right;
+    }
+}
+
+template<class T>
+void FibonacciHeap<T>::consolidate() {
+    int max_deg = ceil(log(getNodeCount()) * 1.44)  + 3;
+    FibonacciNode<T>* Arr[max_deg];
+
+    // initialize the degree table to all NULL
+    for (int i = 0; i < max_deg; i++) {
+        Arr[i] = NULL;
+    }
+
+    FibonacciNode<T>* temp;
+    FibonacciNode<T>* temp2;
+    // traverse the root list of Heap
+    while ((temp = getMinNode()) != NULL) {
+        int deg = temp->getDegree();
+        // remove element from the root list
+        removeFromList(&Min, temp);
+
+        while (Arr[deg] != NULL) {
+            assert(deg < max_deg);
+            temp2 = Arr[deg];
+            // if there are Binomial Heaps matching your degree (n)
+            // combine them to create n+1 degree tree.
+            if (temp->getPriority() < temp2->getPriority()) {
+                heapLink(temp, temp2);
+            } else {
+                heapLink(temp2, temp);
+                temp = temp2;
+            }
+            Arr[deg] = NULL;
+            deg++;
+       }
+       Arr[deg] = temp;
+    }
+
+    Min = NULL;
+    for (int i = 0; i < max_deg; i++) {
+        if (Arr[i] != NULL) {
+            insertInRootList(Arr[i]);
+            if (Min == NULL || Min->getPriority() > Arr[i]->getPriority()) {
+                Min = Arr[i];
+            }
+        }
+    }
+#ifdef DEBUG
+    cout << "consolidated"<<endl;
+    printHeap();
+#endif
+}
+template<class T>
+void FibonacciHeap<T>::heapLink(FibonacciNode<T>* node, FibonacciNode<T>* node2) {
+    if (node == NULL || node2 == NULL)
+        return;
+    // remove node2 from root list and add as a child to node
+    FibonacciNode<T>* child = node->getChild();
+    insertInList(&child, node2);
+    if (node->getChild() == NULL)
+        node->setChild(node2);
+    node2->setParent(node);
+    node->incDegree();
+    node2->setMark(false);
+}
+
+template<class T>
+void FibonacciHeap<T>::printHeap() {
+    if (Min != NULL)
+        printList(Min);
+    else
+        cout << "Empty Heap" << endl;
+}
+
+template<class T>
+void FibonacciHeap<T>::printList(FibonacciNode<T>* node) {
+    // print a pointer
+    // format is {(key, priority), (parent_key, parent_prioriry)}
+    cout << "\n"<< "|" << endl << "\\/" << endl;
+    FibonacciNode<T>* temp = node;
+    FibonacciNode<T>* child;
+    FibonacciNode<T>* parent;
+    do {
+        // key, priority tuple
+        cout << "{(" << *temp->getKey() << ", " << temp->getPriority() << ")";
+        parent = temp->getParent();
+        if (parent != NULL)
+            cout << ", (" << *parent->getKey() <<", " <<  parent->getPriority() << ")";
+        cout << "}" << "\t";
+        child = temp->getChild();
+
+        // if child present recursively print child list
+        if (child != NULL)
+            printList(child);
+
+        temp = temp->getRightSibling();
+    } while(temp != node);
+    cout << "\n";
+}
+template<class T>
+FibonacciHeap<T>::~FibonacciHeap() {
+    if (Min != NULL)
+        return;
+    // delete Min Node, which recursively delete the other nodes
+    delete Min;
+}
+
+template<class T>
+void FibonacciHeap<T>::decreaseKey(T* key, int priority) {
+    // find FibNode corresponding to key
+    FibonacciNode<T>* node = mp.find(key)->second;
+
+    // ensure that new priority is less than the previous one.
+    assert(node->getPriority() > priority);
+
+    // change priority
+    node->setPriority(priority);
+
+    // move node accordingly
+    notifyDecreaseKey(key);
+}
+
+
+template<class T>
+void FibonacciHeap<T>::notifyDecreaseKey(T* key) {
+    FibonacciNode<T>* node = mp.find(key)->second;
+    FibonacciNode<T>* parent = node->getParent();
+    // compare the new priority of the node, in case it is less than parent, move it to root list.
+    if (parent != NULL && (node->getPriority() < parent->getPriority())) {
+        cut(node, parent);
+        cascadingCut(parent);
+    }
+		 // if node is new minimum, set min pointer to node
+    if (node->getPriority() < getMinNode()->getPriority()) {
+        setMin(node);
+    }
+}
+
+
+
+template<class T>
+void  FibonacciHeap<T>::cut(FibonacciNode<T>* child, FibonacciNode<T>* parent) {
+    // remove from childList
+    FibonacciNode<T>* childList = parent->getChild();
+    removeFromList(&childList, child);
+    parent->setChild(childList);
+    parent->decDegree();
+
+    // set parent to null as node is in root list now.
+    child->setParent(NULL);
+
+    // insert into rootlist
+    insertInRootList(child);
+
+    // set mark to be false.
+    child->setMark(false);
+}
+
+template<class T>
+void FibonacciHeap<T>::cascadingCut(FibonacciNode<T>* node) {
+    // On removal of child, maybe parent too has lost two child,
+    // so recursively move parent to the top.
+    // node is parent in this case.
+    FibonacciNode<T>* parent = node->getParent();
+    if (parent != NULL) {
+        // Add mark as node has just lost its first child.
+        if (!node->getMark())
+            node->setMark(true);
+        else {
+            // if it was second lost child, move it to the root list.
+            cut(node, parent);
+            cascadingCut(parent);
+        }
+    }
+}

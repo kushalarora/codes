@@ -148,6 +148,7 @@ void Graph<T>::createEdge(T *V1, T *V2, float weight) {
         // inserting edge to v2 in v1
         temp = currNode->getEdgeList();
         Edge* prevEdge = temp;
+        /*
         while(temp != NULL) {
             // if V2 already present do nothing.
             if (temp->getOtherNode() == nodeArr[1 - idx])
@@ -159,6 +160,9 @@ void Graph<T>::createEdge(T *V1, T *V2, float weight) {
             prevEdge->setNext(newEdge);
         else
             currNode->setEdgeList(newEdge);
+        */
+        newEdge->setNext(temp);
+        currNode->setEdgeList(newEdge);
     }
     nEdges++;
 }
