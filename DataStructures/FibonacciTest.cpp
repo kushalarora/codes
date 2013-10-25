@@ -1,32 +1,31 @@
 #include "FibonacciHeap.hpp"
 #include<assert.h>
 
-
+#define RUN 5000
 int main() {
     FibonacciHeap<int> mQ = FibonacciHeap<int>();
-    int arr[5] = {10, 20, 30, 40, 50};
-    for (int i = 0; i < 5; i++) {
-        mQ.insertNode(arr + i);
+    int arr[RUN];
+    for (int i = 0; i < RUN; i++) {
+        arr[i] = i;
+    }
+    for (int i = 0; i < RUN; i++) {
+        mQ.insertNode(arr + i, arr[i]);
+    }
+    //cout<<"Printing Heap"<<endl;
+    //mQ.printHeap();
+    for (int i = 0; i < RUN; i++) {
+        assert(*(mQ.extractMin()) == i);
     }
     cout<<"Printing Heap"<<endl;
-    mQ.printHeap();
-    assert(*(mQ.extractMin()) == 10);
-    assert(*mQ.extractMin() == 20);
-    assert(*mQ.extractMin() == 30);
-    assert(*mQ.extractMin() == 40);
-    assert(*mQ.extractMin() == 50);
-    cout<<"Printing Heap"<<endl;
-    mQ.printHeap();
-    for (int i = 0; i < 5; i++) {
-        mQ.insertNode(arr + i);
+    //mQ.printHeap();
+    for (int i = 0; i < RUN/2; i++) {
+        mQ.insertNode(arr + i, arr[i]);
     }
-    mQ.printHeap();
-    mQ.extractMin();
-    mQ.printHeap();
+    cout<<"Printing Heap"<<endl;
+    //mQ.printHeap();
     cout<<"Decreasing Key 50 to 5"<<endl;
-    FibonacciNode<int>* node = mQ.getNodeByVal(50);
-    mQ.decreaseKey(node, new int(5));
-    mQ.printHeap();
-    assert(*mQ.extractMin() == 5);
+    mQ.decreaseKey(arr +4, -1);
+    //mQ.printHeap();
+    assert(*mQ.extractMin() == 4);
     return 0;
 }

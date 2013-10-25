@@ -1,9 +1,11 @@
 #include<iostream>
+#include<climits>
 using namespace std;
 template<class T>
 class FibonacciNode {
     private:
         T* key;
+        int priority;
         FibonacciNode* left;
         FibonacciNode* right;
         int degree;
@@ -12,18 +14,21 @@ class FibonacciNode {
         FibonacciNode* child;
 
     public:
-        FibonacciNode(T* key) {
+        FibonacciNode(T* key, int priority) {
             this->key = key;
+            this->priority = priority;
             left = NULL;
             right = NULL;
             degree = 0;
             mark = false;
             parent = NULL;
             child = NULL;
+            priority = INT_MAX;
         }
         T* getKey() {return key;}
-        T getKeyVal() {return *key;}
         void setKey(T* key) {this->key = key;}
+        int getPriority() {return priority;}
+        void setPriority(int priority) {this->priority = priority;}
         FibonacciNode* getRightSibling() {return right;}
         void setRightSibling(FibonacciNode* right) {this->right = right;}
         FibonacciNode* getLeftSibling() {return left;}
@@ -37,5 +42,4 @@ class FibonacciNode {
         FibonacciNode* getChild() {return child;}
         void incDegree() {degree++;}
         void decDegree() {degree--;}
-        void setDegree(int degree) {this->degree = degree;}
 };

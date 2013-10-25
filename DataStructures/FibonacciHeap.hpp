@@ -5,12 +5,14 @@
 #include<assert.h>
 using namespace std;
 
+//#define DEBUG
+
 template<class T>
 class FibonacciHeap {
     private:
         FibonacciNode<T>* Min;
         int nNodes;
-        map<T,FibonacciNode<T>*> mp;
+        map<T*,FibonacciNode<T>*> mp;
         void consolidate();
         void cut(FibonacciNode<T>* node1, FibonacciNode<T>* node2);
         void cascadingCut(FibonacciNode<T>* node);
@@ -30,17 +32,16 @@ class FibonacciHeap {
         int getNodeCount() {return nNodes;}
         FibonacciNode<T>* getMinNode() {return Min;}
         void insertNode(FibonacciNode<T>* node);
-        void insertNode(T key);
-        void insertNode(T* keyP);
+        void insertNode(T* keyP, int priority);
         void meld(FibonacciHeap<T>* H2);
         T* extractMin();
-        void decreaseKey(FibonacciNode<T>* node, T* key);
-        void notifyDecreaseKey(FibonacciNode<T>* node);
+        void decreaseKey(T* keyP, int priority);
+        void notifyDecreaseKey(T* keyP);
         void deleteNode(FibonacciNode<T>* node);
         void setMin(FibonacciNode<T>* node) {this->Min = node;}
         void printHeap();
-        FibonacciNode<T>* getNodeByVal(T val) {
-            typename map<T, FibonacciNode<T>*>::iterator itr = mp.find(val);
+        FibonacciNode<T>* getNodeByVal(T* keyP) {
+            typename map<T*, FibonacciNode<T>*>::iterator itr = mp.find(keyP);
             if (itr == mp.end())
                 return NULL;
             return itr->second;
@@ -51,20 +52,16 @@ class FibonacciHeap {
 template<class T>
 void FibonacciHeap<T>::insertNode(FibonacciNode<T>* node) {
     insertInRootList(node);
-    if (Min == NULL || Min->getKeyVal() > node->getKeyVal()) {
+    if (Min == NULL || Min->getPriority() > node->getPriority()) {
         Min = node;
     }
     nNodes++;
-    mp[node->getKeyVal()] = node;
-}
-template<class T>
-void FibonacciHeap<T>::insertNode(T key) {
-    insertNode(new FibonacciNode<T>(&key));
+    mp[node->getKey()] = node;
 }
 
 template<class T>
-void FibonacciHeap<T>::insertNode(T* key) {
-    insertNode(new FibonacciNode<T>(key));
+void FibonacciHeap<T>::insertNode(T* key, int priority) {
+    insertNode(new FibonacciNode<T>(key, priority));
 }
 
 template<class T>
@@ -81,7 +78,7 @@ void FibonacciHeap<T>::meld(FibonacciHeap<T>* H2) {
     } else {
         meldLists(H1_min, H2_min);
         // set new Minimum
-        if (H2_min->getKeyVal() < H1_min->getKeyVal())
+        if (H2_min->getPriority() < H1_min->getPriority())
             this->Min = H2_min;
     }
     this->nNodes += H2->getNodeCount();
@@ -141,8 +138,10 @@ T* FibonacciHeap<T>::extractMin() {
         // remove min
         removeFromList(&Min, min);
         nNodes--;
-        cout<<"Extracted Min"<<endl;
+#ifdef DEBUG
+        cout << "Removed Min"<<endl;
         printHeap();
+#endif
         if (Min != NULL)
             consolidate();
     }
@@ -165,7 +164,7 @@ void FibonacciHeap<T>::removeFromList(FibonacciNode<T>** pList, FibonacciNode<T>
 
 template<class T>
 void FibonacciHeap<T>::consolidate() {
-    int max_deg = ceil(log(getNodeCount())) + 1;
+    int max_deg = ceil(log(getNodeCount()) * 1.44)  + 1;
     FibonacciNode<T>* Arr[max_deg];
     for (int i = 0; i < max_deg; i++) {
         Arr[i] = NULL;
@@ -178,8 +177,9 @@ void FibonacciHeap<T>::consolidate() {
         int deg = temp->getDegree();
         removeFromList(&Min, temp);
         while (Arr[deg] != NULL) {
+            assert(deg < max_deg);
             temp2 = Arr[deg];
-            if (temp->getKeyVal() < temp2->getKeyVal()) {
+            if (temp->getPriority() < temp2->getPriority()) {
                 heapLink(temp, temp2);
             } else {
                 heapLink(temp2, temp);
@@ -195,13 +195,15 @@ void FibonacciHeap<T>::consolidate() {
     for (int i = 0; i < max_deg; i++) {
         if (Arr[i] != NULL) {
             insertInRootList(Arr[i]);
-            if (Min == NULL || Min->getKeyVal() > Arr[i]->getKeyVal()) {
+            if (Min == NULL || Min->getPriority() > Arr[i]->getPriority()) {
                 Min = Arr[i];
             }
         }
     }
-    cout<<"Consolidated Heap"<<endl;
+#ifdef DEBUG
+    cout << "consolidated"<<endl;
     printHeap();
+#endif
 }
 template<class T>
 void FibonacciHeap<T>::heapLink(FibonacciNode<T>* node, FibonacciNode<T>* node2) {
@@ -232,11 +234,11 @@ void FibonacciHeap<T>::printList(FibonacciNode<T>* node) {
     FibonacciNode<T>* child;
     FibonacciNode<T>* parent;
     do {
-        cout << "(" << temp->getKeyVal();
+        cout << "{(" << *temp->getKey() << ", " << temp->getPriority() << ")";
         parent = temp->getParent();
         if (parent != NULL)
-            cout << ", " << parent->getKeyVal();
-        cout << ")" << "\t";
+            cout << ", (" << *parent->getKey() <<", " <<  parent->getPriority() << ")";
+        cout << "}" << "\t";
         child = temp->getChild();
         if (child != NULL)
             printList(child);
@@ -252,21 +254,23 @@ FibonacciHeap<T>::~FibonacciHeap() {
 }
 
 template<class T>
-void FibonacciHeap<T>::decreaseKey(FibonacciNode<T>* node, T* key) {
-    assert(node->getKeyVal() > *key);
-    node->setKey(key);
-    notifyDecreaseKey(node);
+void FibonacciHeap<T>::decreaseKey(T* key, int priority) {
+    FibonacciNode<T>* node = mp.find(key)->second;
+    assert(node->getPriority() > priority);
+    node->setPriority(priority);
+    notifyDecreaseKey(key);
 }
 
 
 template<class T>
-void FibonacciHeap<T>::notifyDecreaseKey(FibonacciNode<T>* node) {
+void FibonacciHeap<T>::notifyDecreaseKey(T* key) {
+    FibonacciNode<T>* node = mp.find(key)->second;
     FibonacciNode<T>* parent = node->getParent();
-    if (parent != NULL && (node->getKeyVal() < parent->getKeyVal())) {
+    if (parent != NULL && (node->getPriority() < parent->getPriority())) {
         cut(node, parent);
         cascadingCut(parent);
     }
-    if (node->getKeyVal() < getMinNode()->getKeyVal()) {
+    if (node->getPriority() < getMinNode()->getPriority()) {
         setMin(node);
     }
 }
