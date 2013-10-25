@@ -53,9 +53,10 @@ void MinimumSpanningTree::printMSTEdges(Graph<NodeMST>* G) {
         while(tmp != NULL) {
             assert(tmp->getCurrentNode() == parent);
             if (tmp->getOtherNode() == node) {
-                parent->printNode();
-                tmp->printEdge();
-                node->printNode();
+                //parent->printNode();
+                //tmp->printEdge();
+                //node->printNode();
+                cout << parent->getValue() <<" "<< node->getValue();
                 cout << endl;
                 break;
             }
