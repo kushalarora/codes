@@ -26,7 +26,7 @@ class Node {
         void setLabel(string lbl) {label = lbl;}
         void setAdjecencyIndex(int val) {adj_index = val;}
         int  getAdjecencyIndex() {return adj_index;}
-        virtual void populateNode(bool labelled, bool valued, int seed);
+        virtual void populateNode(bool labelled, bool valued, int seed);    // populates node based on input
         virtual void printNode();
         virtual void reset() {};
         ~Node();

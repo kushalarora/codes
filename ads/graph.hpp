@@ -98,6 +98,7 @@ template<class T>
 Graph<T>::Graph(bool dirctd, bool wghtd, bool lbled, bool valed) {
     nVertices = 0;
     nEdges = 0;
+    // initialize edgeNode array to null
     for (int i = 0; i < MAXV; i++) {
         degree[i] = 0;
         edgeNode[i] = NULL;
@@ -169,6 +170,8 @@ void Graph<T>::createEdge(T *V1, T* V2) {
 
 template<class T>
 void Graph<T>::printGraph() {
+    // format adj lest (node) --w1-- (node2)---w2--(node3)
+    // where node1 and node2 are neighbours of node connected by edge weight w1 and w2.
     for (int i = 0; i < nVertices; i++) {
         T* node = edgeNode[i];
         node->printNode();
@@ -207,15 +210,16 @@ void Graph<T>::createRandomGraph(int nVertices, float density) {
         return;
     for (int i = 0; i < nVertices; i++) {
         T* node = new T();
+        // randomly populate node values
         node->populateNode(isLabelled(), isValued(), nVertices);
         insertNode(node);
     }
-    createRandomEdges(nVertices * (density > 0.0 ? density * nVertices : (rand() % nVertices)), nVertices);
+    createRandomEdges((density * nVertices * (nVertices - 1))/2, nVertices);
 }
 
 template<class T>
 void Graph<T>::createRandomGraph(int nVertices) {
-    createRandomGraph(nVertices, 0.0);
+    createRandomGraph(nVertices, 0.2);
 }
 
 template<class T>

@@ -6,9 +6,9 @@ using namespace std;
 #include<limits.h>
 class NodeMST : public Node {
     private:
-        bool in_tree;
-        int distance;
-        NodeMST* parent;
+        bool in_tree;   // boolean to check if node is in tree or not
+        int distance;   // distance of node from closest node in tree
+        NodeMST* parent; // parent of the node in tree form
 
     public:
         NodeMST(){
@@ -43,6 +43,8 @@ class NodeMST : public Node {
             parent = NULL;
         }
 };
+
+// Base Wrapper class that provides interface to MST algorithm to minQueue.
 class MinQueueWrapper {
     public:
         virtual void init(Graph<NodeMST>* G) = 0;
@@ -51,6 +53,8 @@ class MinQueueWrapper {
         virtual void decreaseKey(NodeMST* node, int weight) = 0;
 };
 
+
+// Wrapper class implementing simple Scheme
 class SimpleMinQueueWrapper : public MinQueueWrapper {
     private:
         Graph<NodeMST> *g;
@@ -64,6 +68,9 @@ class SimpleMinQueueWrapper : public MinQueueWrapper {
         void decreaseKey(NodeMST* node, int weight);
         NodeMST* getMinWeightNode();
 };
+
+
+// Wrapper class encapsulating FibonacciHeap to provide minQueue behavior.
 class FHeapQueueWrapper : public MinQueueWrapper {
     private:
         FibonacciHeap<NodeMST> heap;
