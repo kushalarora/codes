@@ -164,7 +164,7 @@ void FibonacciHeap<T>::removeFromList(FibonacciNode<T>** pList, FibonacciNode<T>
 
 template<class T>
 void FibonacciHeap<T>::consolidate() {
-    int max_deg = ceil(log(getNodeCount()) * 1.44)  + 1;
+    int max_deg = ceil(log(getNodeCount()) * 1.44)  + 3;
     FibonacciNode<T>* Arr[max_deg];
     for (int i = 0; i < max_deg; i++) {
         Arr[i] = NULL;
