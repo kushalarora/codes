@@ -1,4 +1,7 @@
 using namespace std;
+
+#include "../../cpp/utils.hpp"
+
 #include<iostream>
 #include<cassert>
 

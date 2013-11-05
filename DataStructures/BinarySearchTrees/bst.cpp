@@ -4,14 +4,15 @@ void BinarySearchTree :: insertNode(int val) {
     insertNode(new Node(val));
 }
 void BinarySearchTree :: insertNode(Node* newNode) {
-    if (newNode == NULL)
-        cout << "New Node is empty";
+    if (newNode == NULL) {
+        debug("New Node is empty");
         assert(true);
+    }
     int index = 0;
     int val = newNode->getValue();
     if (isEmpty()) {
         root = newNode;
-        cout << "Inserting New Node " << val << " as root" << "\n";
+        debug2("Inserting as root- Node ",val);
     } else {
         Node* parent = NULL;
         Node* temp = root;
@@ -29,15 +30,13 @@ void BinarySearchTree :: insertNode(Node* newNode) {
             parent->setLChild(newNode);
         else
             parent->setRChild(newNode);
-        cout << "Inserting New Node " << val << " as a "
-             << (val < parent->getValue() ? "left" : "right")
-             << " child of " << parent->getValue() << "\n";
+        debug3(val,(val < parent->getValue() ? "left" : "right"), parent->getValue());
     }
 }
 
 Node* BinarySearchTree :: searchNode (int val) {
     // item not present in first leftSize nodes,
-    // look in right subtree with index relative to 
+    // look in right subtree with index relative to
     // first element in that tree.
     return searchNodeRoutine(val, false);
 }
@@ -119,7 +118,7 @@ Node* BinarySearchTree :: predecessorRoutine(Node* node) {
     return predecessor;
 }
 void BinarySearchTree :: deleteNode(int val) {
-    return deleteNodeRoutine(searchNode(val));
+    return deleteNodeRoutine(searchNodeRoutine(val, true));
 }
 void BinarySearchTree :: deleteNodeRoutine(Node* node) {
     if (node == NULL)
@@ -187,7 +186,7 @@ void BinarySearchTree :: inOrder() {
 void BinarySearchTree :: preOrderRoutine(Node* parent) {
     if (parent == NULL)
         return;
-    cout << " " << parent->getValue() <<" ";
+    cout << parent->getValue() << " " << parent->getLeftSize()<<"\t";
     preOrderRoutine(parent->getLChild());
     preOrderRoutine(parent->getRChild());
 }
@@ -196,27 +195,28 @@ void BinarySearchTree :: postOrderRoutine(Node* parent) {
         return;
     postOrderRoutine(parent->getLChild());
     postOrderRoutine(parent->getRChild());
-    cout << " " << parent->getValue() <<" ";
+    cout << parent->getValue() << " " << parent->getLeftSize()<<"\t";
 }
 void BinarySearchTree :: inOrderRoutine(Node* parent) {
     if (parent == NULL)
         return;
     inOrderRoutine(parent->getLChild());
-    cout << " " << parent->getValue() <<" ";
+    cout << parent->getValue() << " " << parent->getLeftSize()<<"\t";
     inOrderRoutine(parent->getRChild());
 }
 
 Node* BinarySearchTree :: getNodeByIndex(int index) {
-   Node* temp = root; 
+   Node* temp = root;
    while(temp != NULL) {
        if (temp->getLeftSize() == index) {
            return temp;
        } else if (index > temp->getLeftSize()) {
-           temp = temp->getRChild();
            // item not present in first leftSize nodes,
-           // look in right subtree with index relative to 
+           // look in right subtree with index relative to
            // first element in that tree.
-           index -= temp->getLeftSize();
+           index -= (temp->getLeftSize() + 1);
+
+           temp = temp->getRChild();
        } else {
            temp = temp->getLChild();
        }
@@ -224,11 +224,12 @@ Node* BinarySearchTree :: getNodeByIndex(int index) {
 }
 int main() {
     BinarySearchTree bst;
-    enum {QUIT, INSERT, SEARCH, INORDER, PREORDER, POSTORDER, SUCCESSOR, PREDECESSOR, DELETE};
+    enum {QUIT, INSERT, SEARCH, INORDER, PREORDER, POSTORDER, SUCCESSOR, PREDECESSOR, DELETE, GETBYINDEX};
     int option = -1;
     int el;
     while (option != QUIT) {
         cout << "What you want to do now?"<<"\n";
+        cout <<"0. QUIT 1. INSERT 2.SEARCH 3. INORDER 4. PREORDER 5.POSRORDER 6.SUCCESSOR 7.PREDECESSOR 8.DELETE 9.GETBYINDEX\n";
         cin >> option;
         switch (option) {
             case INSERT:    // 1
@@ -257,7 +258,6 @@ int main() {
                 break;
             case PREORDER: // 4
                 cout << "Doing preorder traversal"<<"\n";
-                bst.inOrder();
                 bst.preOrder();
                 cout << "\n";
                 break;
@@ -287,6 +287,14 @@ int main() {
                 cin >> el;
                 bst.deleteNode(el);
                 break;
+            case GETBYINDEX: // 9
+                {
+                    cout << "Enter Index of the item you are looking for?"<<"\n";
+                    cin >> el;
+                    Node* node = bst.getNodeByIndex(el);
+                    cout << "Item found is " <<node->getValue() << "\n";
+                    break;
+                }
             case QUIT: // 0
                 cout<<"GoodBye!";
                 return 0;
