@@ -15,32 +15,22 @@ void randomComparisons(Graph<NodeMST>* G) {
     // MST class is a singleton, getting instance
     MinimumSpanningTree* mst = MinimumSpanningTree::getInstance();
 
-    cout << "Using Simple Scheme"<<endl;
-    // scheme is set on runtime.
     mst->setScheme(SIMPLE);
-
     start = clock();
     totalWeight = mst->spanMinimumTree(G, G->getNodeByIndex(0));
     time = clock() - start;
-
-    // print tree weight for cross checking and time taken.
-    cout << "Total Spanned Weight "<< totalWeight << endl;
-    cout << "Time taken: " << time;
-    cout<<endl;
+    cout <<time << "\t";
 
     // reset Graph to be used again.
     G->reset();
 
 
-    cout << "Using FHeap Scheme"<<endl;
     start = clock();
     // set scheme to be FHEAP
     mst->setScheme(FHEAP);
     totalWeight = mst->spanMinimumTree(G, G->getNodeByIndex(0));
     time = clock() - start;
-    cout << "Total Spanned Weight "<< totalWeight << endl;
-    cout << "Time taken: " << time;
-    cout<<endl;
+    cout << time << endl;
 #ifdef DEBUG
     mst->printMSTEdges(G);
 #endif

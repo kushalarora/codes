@@ -10,7 +10,6 @@ int MinimumSpanningTree::PRIMS(Graph<NodeMST> *G, NodeMST* source) {
     currVertex->setDistance(0);
     int total_dist = 0;
 
-
     while(!currVertex->isInTree()) {
         // add min vertex to tree
         currVertex->addToTree();
