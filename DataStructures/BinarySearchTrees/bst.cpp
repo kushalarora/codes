@@ -244,4 +244,5 @@ typename BinarySearchTree<T,Y>::node_ptr BinarySearchTree<T,Y> :: getNodeByIndex
            temp = temp->getLChild();
        }
    }
+   return NULL;
 }
