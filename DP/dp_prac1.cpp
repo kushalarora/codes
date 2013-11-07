@@ -21,6 +21,10 @@
 
 using namespace std;
 #include<iostream>
+#include <climits>
+// Approach here is to traverse on number of coins.
+// Look for all the sum that can be generated with x number of coins.
+// Stop either when S is achieved or x number of coins all produce sum greater than S in which case return -1;
 int my_solution(int a[], int a_size, int S) {
 
     // cache of size S. Stores number of coins need to generate numbers upto S.
@@ -77,6 +81,44 @@ int my_solution(int a[], int a_size, int S) {
     return -1;
 }
 
+// this is based on recursion approach.
+// C(X) = 1 + min(C(X-V1), C(X-V2), .... C(X-VN))
+// Now the state of limited quantity here is C(X) i.e. min number of coins to X.
+// Initialize all cost upto S by INT_MAX.
+// Base case is 1 coin one.
+// Calculate cost for each C(X) upto S untill S is reached.
+// That will be minimum cost C for S.
+int my_solution2(int a[], int a_size, int S) {
+    int C[S + 1];
+    int i;
+    for (i = 0; i <= S; i++) {
+        C[i] = INT_MAX;
+    }
+
+    for (i = 0; i < a_size; i++) {
+        if (a[i] == S)
+            return 1;
+        else if (a[i] < S)
+            C[a[i]] = 1;
+    }
+    int sum;
+    for (i = 0; i <= S; i++) {
+        for (int j = 0; j < a_size; j++) {
+            if (C[i] == INT_MAX)
+                continue;
+            sum = i + a[j];
+            if (sum == S) {
+                return C[i] + 1;
+            } else if (sum < S) {
+                if (C[sum] > C[i] + 1)
+                    C[sum] = C[i] + 1;
+            }
+        }
+    }
+    if (C[S] != INT_MAX)
+        return C[S];
+    return -1;
+}
 
 int main() {
     int N, S;
@@ -87,7 +129,7 @@ int main() {
         cin >> a[i];
     }
     cin >> S;
-    int out = my_solution(a, N, S);
+    int out = my_solution2(a, N, S);
     if (out == -1)
         cout << "Total "<< S <<" cannot be reached" << "\n";
     else
