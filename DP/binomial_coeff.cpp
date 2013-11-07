@@ -22,29 +22,35 @@
  */
 
 #include<iostream>
+#include "../cpp/utils.hpp"
 using namespace std;
 const int MAXN = 100;
 
-long binomial_coeff(int n, int k) {
-    long map[MAXN][MAXN];
+long long binomial_coeff(int n, int k) {
+    long long map[MAXN][MAXN];
     int i,j;
+    // init c(k, 0) = 1: Base case 1
     for(i = 0; i <=n; i++)
         map[i][0] = 1;
 
+    // init c(k,k) = 1: Base case 2
     for (j = 0; j < n; j++)
         map[j][j] = 1;
-    cout << map[0][0]<<"\n";
+
+    debug2(map[0][0], "");
     for (i = 1; i <= n; i++) {
-        cout << map[i][0] << "\t";
+        debug(map[i][0]);
         for(j = 1; j < i; j++) {
             map[i][j] = map[i - 1][j - 1] + map[i - 1][j];
-            cout <<map[i][j] << "\t";
+            debug(map[i][j]);
         }
-        cout<< map[i][j] << "\n";
+        debug2(map[i][j],"");
     }
     return (map[n][k]);
 }
 
 int main(int argc, char** argv) {
-    cout<<binomial_coeff(20, 1)<<"\n";
+    int n, k;
+    cin>>n>>k;
+    cout<<binomial_coeff(n, k)<<"\n";
 }
