@@ -97,6 +97,4 @@ class BinarySearchTree {
         node_ptr getNodeByIndex(int index);
 };
 
-// done to solve linking problem related to template classes.
-// http://www.codeproject.com/Articles/48575/How-to-define-a-template-class-in-a-h-file-and-imp
 #endif
