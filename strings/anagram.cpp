@@ -1,3 +1,35 @@
+/*
+ * https://www.hackerrank.com/challenges/anagram
+ *
+ * Given a string make left part an anagram of right part.
+ * Determine minimum number of changes needed for this.
+ * Look at problem statement for more details
+ *
+ * Sample Input
+ *
+ * 5
+ * aaabbb
+ * ab
+ * abc
+ * mnop
+ * xyyx
+ *
+ * Sample Output
+ * 3
+ * 1
+ * -1
+ * 2
+ * 0
+ *
+ * Approach:
+ * Split string into two.
+ * If odd length obviously left can't be anagram of right
+ * Using bucketing approach.
+ * Count each char for left part ie increment count for appearence of each char in an array
+ * Match using right subpart and find out what number of chars in left substring is unaccounted for
+ * As the length of left and right are same these unaccounted number of chars needs to be changed.
+ */
+
 #include<iostream>
 #include<string>
 using namespace std;
