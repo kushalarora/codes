@@ -103,22 +103,30 @@ class Graph {
     protected:
         virtual void createRandomEdges(int nEdges, int nVertices, bool ensure_acyclic);
         virtual void processEdge(E* edge) {
+#ifdef DEBUG
             cout << "Processed Edge";
             (edge->getCurrentNode())->printNode();
             edge->printEdge();
             (edge->getOtherNode())->printNode();
             cout << "\n";
             cout << "Edge turned " << edge->getType() << endl;
+#endif
         }
+
         virtual void processOnBlack(V* node) {
+#ifdef DEBUG
             cout << "Node Turned Black ";
             node->printNode();
             cout << "\n";
+#endif
         };
+
         virtual void processOnGrey(V* node) {
+#ifdef DEBUG
             cout << "Node turned Grey ";
             node->printNode();
             cout << "\n";
+#endif
         }
 };
 
@@ -439,5 +447,4 @@ void Graph<V,E>::topsort() {
     cout << endl;
 #endif
 }
-
 #endif
