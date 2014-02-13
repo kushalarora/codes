@@ -1,0 +1,94 @@
+#include<iostream>
+#include<cassert>
+#include<string>
+using namespace std;
+
+struct Node {
+    int x;
+    int y;
+    int index;
+    Node* next;
+};
+
+void reflectX(Node* head, int i, int j) {
+    Node* tmp = head;
+    while(tmp != NULL && tmp->index <= j) {
+        if (tmp->index >= i) {
+            tmp->y = -1 * tmp->y;
+        }
+        tmp = tmp->next;
+    }
+
+}
+void reflectY(Node* head, int i, int j) {
+    Node* tmp = head;
+    while(tmp != NULL && tmp->index <= j) {
+        if (tmp->index >= i)
+            tmp->x = -1 * tmp->x;
+        tmp = tmp->next;
+    }
+}
+
+void print4Quant(Node* head, int i, int j) {
+    int Q[4] = {0, 0, 0, 0};
+    Node* tmp = head;
+    while(tmp != NULL && tmp->index <= j) {
+        if (tmp->index >= i) {
+            int x = tmp->x, y = tmp->y;
+            int quad = (x > 0 && y > 0 ? 1 :
+                            (x < 0 && y > 0 ? 2 :
+                             (x < 0 && y < 0 ? 3 : 4)));
+            Q[quad - 1]++;
+        }
+        tmp = tmp->next;
+    }
+    cout << Q[0] << " " <<Q[1] << " " << Q[2] << " " << Q[3] <<endl;
+}
+
+int main() {
+    int N, x, y, Q, q_type, i, j, k=0;
+    Node *head = NULL;
+    Node *prev_node = head;
+    string query;
+    cin >> N;
+    Node arr[N];
+
+    // init sequence
+    while(k < N) {
+        cin >> x >> y;
+        Node* new_node = arr[k];
+        new_node->x = x;
+        new_node->y = y;
+        new_node->index = k++;
+        new_node->next = NULL;
+
+        if (prev_node == NULL) {
+            prev_node = head = new_node;
+        } else {
+            assert(prev_node->next == NULL);
+
+            prev_node->next = new_node;
+            prev_node = new_node;
+        }
+    }
+    cin >> Q;
+    while(Q--) {
+        cin >> query >> i >> j;
+        q_type = query[0] == 'X' ? 0 : (query[0] == 'Y' ? 1 : 2);
+        switch(q_type) {
+            case 0: {
+                        reflectX(head, i, j);
+                        break;
+                    }
+            case 1: {
+                        reflectY(head, i, j);
+                        break;
+                    }
+            case 2: {
+                        print4Quant(head, i, j);
+                        break;
+                    }
+        }
+    }
+    return 0;
+}

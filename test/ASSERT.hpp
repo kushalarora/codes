@@ -1,3 +1,4 @@
+#include<stdlib.h>
 #ifndef NDEBUG
 #   define ASSERT(condition, message) \
     do { \
